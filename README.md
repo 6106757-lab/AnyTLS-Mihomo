@@ -1,78 +1,270 @@
-AnyTLS Mihomo Web Panel
-一个基于 Mihomo (Clash Meta) 内核 的 AnyTLS 可视化节点管理面板。
-通过简洁直观的 Web 界面，轻松掌控端口、多账号管理、SSL 证书生命周期，并可一键调校客户端参数（SNI、uTLS 指纹等），自动生成专属导入二维码和 Base64 动态订阅链接。
-🌟 核心特性
-💻 可视化管理：告别笨重繁琐的命令行与 YAML 修改，在浏览器中直观配置所有参数。
-👥 多用户支持：支持一键增、删、改多个账号（用户名与密码）。
-🔒 证书生命周期管理：
-支持自签名证书（一键基于自定义域名续签/重签 10 年证书）。
-支持上传真实的 CA 域名证书。
-网页端实时读取并直观显示证书生效/过期时间。
-⚙️ 客户端参数精准调校：自定义 SNI 伪装域名、选择 uTLS 浏览器指纹（Chrome, Firefox, Safari 等）、开启/关闭跳过证书验证。
-📊 混淆策略自定义：完美支持自定义 padding-scheme 规则（对抗精准流量长度分析）。
-🔗 一键导出与动态订阅：
-为每个账号一键生成 anytls:// 客户端协议链接和导入二维码。
-提供专属动态订阅接口（/sub），可填入 NekoBox / v2rayN / Shadowrocket 自动同步与更新节点。
-🚀 快速部署
-本项目已完全容器化，并托管于 GitHub Container Registry (GHCR)。
-准备工作
-请确保你的服务器已安装 Docker 和 Docker Compose。若未安装，在 Ubuntu 上可通过以下命令安装：
-code
-Bash
-curl -fsSL https://get.docker.com | sh && systemctl enable --now docker
-方法一：使用 Docker Compose 运行（推荐）
-创建工作目录：
-code
-Bash
-mkdir -p /opt/anytls-panel && cd /opt/anytls-panel
-创建 docker-compose.yml 配置文件：
-code
-Yaml
-version: '3'
+# AnyTLS Mihomo Web Panel
+
+一个基于 **Mihomo（Clash Meta）内核** 的 **AnyTLS 可视化管理面板**。
+
+通过简洁直观的 Web 界面，即可完成 AnyTLS 服务端配置、用户管理、证书维护以及客户端配置生成，无需手动编辑 YAML 文件。
+
+---
+
+## ✨ 功能特性
+
+### 🖥️ Web 可视化管理
+
+* 基于浏览器完成所有配置操作；
+* 无需命令行修改配置文件；
+* 配置变更后自动应用。
+
+### 👥 多用户账号管理
+
+* 支持创建、编辑、删除多个用户；
+* 独立管理用户名与密码；
+* 支持快速生成对应客户端配置。
+
+### 🔐 SSL 证书管理
+
+支持两种证书模式：
+
+#### 自签名证书
+
+* 基于自定义域名一键生成证书；
+* 支持重新签发；
+* 默认有效期 **10 年**。
+
+#### CA 证书
+
+* 支持上传真实域名证书；
+* 自动读取证书信息；
+* 实时显示证书生效时间与到期时间。
+
+### ⚙️ 客户端参数配置
+
+支持通过面板自定义以下参数：
+
+* SNI 伪装域名；
+* uTLS 浏览器指纹：
+
+  * Chrome
+  * Firefox
+  * Safari
+  * Edge
+  * Random 等；
+* 是否跳过证书验证。
+
+### 📈 Padding 混淆策略
+
+支持自定义 `padding-scheme` 规则，用于降低流量长度特征带来的识别风险。
+
+### 🔗 节点分享与订阅
+
+* 一键生成 `anytls://` 导入链接；
+* 自动生成二维码；
+* 提供动态订阅接口；
+* 支持客户端自动更新节点。
+
+兼容客户端包括：
+
+* NekoBox
+* v2rayN
+* Shadowrocket
+* 其他支持 AnyTLS 订阅的客户端
+
+---
+
+# 🚀 快速开始
+
+## 环境要求
+
+请确保服务器已安装：
+
+* Docker
+* Docker Compose
+
+Ubuntu 安装 Docker：
+
+```bash
+curl -fsSL https://get.docker.com | sh
+systemctl enable --now docker
+```
+
+---
+
+## 使用 Docker Compose（推荐）
+
+### 1. 创建工作目录
+
+```bash
+mkdir -p /opt/anytls-panel
+cd /opt/anytls-panel
+```
+
+### 2. 创建 `docker-compose.yml`
+
+```yaml
 services:
   anytls-panel:
     image: ghcr.io/6106757-lab/anytls-mihomo:latest
     container_name: anytls-mihomo-panel
     restart: always
-    network_mode: "host" # 使用 host 模式以便直接映射端口
+    network_mode: host
+
     volumes:
-      - ./data:/root/.config/mihomo # 本地数据持久化
-启动容器：
-code
-Bash
+      - ./data:/root/.config/mihomo
+```
+
+### 3. 启动服务
+
+```bash
 docker compose up -d
-方法二：使用 Docker Run 命令行直接运行
-如果你不想创建任何配置文件，可以直接运行以下命令快速启动：
-code
-Bash
+```
+
+---
+
+## 使用 Docker Run
+
+```bash
 docker run -d \
   --name anytls-mihomo-panel \
   --restart always \
   --network host \
   -v /opt/anytls-panel/data:/root/.config/mihomo \
   ghcr.io/6106757-lab/anytls-mihomo:latest
-📝 初始登录与使用说明
-访问面板：
-在浏览器中输入：http://你的服务器IP:8888
-初始密码：
-默认登录密码为：admin
-修改密码（重要）：
-登录后请立即切换到 “安全设置” 选项卡，修改面板密码以防被扫。
-端口冲突解决：
-默认监听端口为 8443。如果遇到端口被占用的提示，可在面板页面中将监听端口直接修改为 8444 或其他未占用端口，点击保存并应用即可。
-🔗 节点导入与客户端使用
-1. 节点一键导入 / 扫码
-在“用户管理”栏目中，点击账号右侧的 “生成连接”，即可弹出该账号对应的 anytls:// 连接。
-可以直接复制该链接，或使用客户端扫码直接导入。
-2. 动态订阅链接 (Sub)
-面板最上方会为你展示专属的动态订阅地址，格式通常为：http://你的服务器IP:8888/sub
-将该地址复制并粘贴进 NekoBox、v2rayN 或 Shadowrocket 的订阅管理中。以后若在网页端增删账号，只需在客户端一键“更新订阅”即可，无需重复手动导入。
-📂 数据存放说明
-配置挂载后，宿主机本地的工作目录为：/opt/anytls-panel/data/。
-该目录下会自动生成并保存以下关键数据（迁移或备份只需备份此目录即可）：
-config.yaml（自动格式化生成的内核配置文件）
-server.crt / server.key（当前的 SSL 证书文件对）
-panel_pwd.txt（加密保存的面板登录密码）
-cert_domain.txt（保存绑定的证书域名）
-🔒 免责声明
-本项目仅供学习、科研及计算机网络技术的研究与探讨使用。请勿将其用于非法用途。使用本软件所造成的任何直接或间接后果，均由使用者自行承担。# AnyTLS-Mihomo
+```
+
+---
+
+# 📖 使用说明
+
+## 访问面板
+
+默认地址：
+
+```text
+http://服务器IP:8888
+```
+
+---
+
+## 默认登录信息
+
+默认密码：
+
+```text
+admin
+```
+
+首次登录后，请立即修改密码。
+
+路径：
+
+```text
+安全设置 → 修改面板密码
+```
+
+---
+
+## 修改监听端口
+
+AnyTLS 默认监听：
+
+```text
+8443
+```
+
+若端口已被占用，可在面板中修改为其他端口，例如：
+
+```text
+8444
+4433
+9443
+```
+
+保存后即可自动应用。
+
+---
+
+# 📲 客户端导入
+
+## 导入单个节点
+
+进入：
+
+```text
+用户管理 → 生成连接
+```
+
+即可获得：
+
+* anytls:// 导入链接；
+* 对应二维码。
+
+客户端扫码或粘贴即可使用。
+
+---
+
+## 动态订阅
+
+面板会自动生成订阅地址：
+
+```text
+http://服务器IP:8888/sub
+```
+
+将其添加至客户端订阅管理中。
+
+当服务端新增、删除或修改用户后，只需在客户端执行：
+
+```text
+更新订阅
+```
+
+即可同步最新配置。
+
+---
+
+# 📂 数据目录
+
+所有配置均保存在挂载目录：
+
+```text
+/opt/anytls-panel/data
+```
+
+主要文件说明：
+
+| 文件              | 作用          |
+| --------------- | ----------- |
+| config.yaml     | Mihomo 配置文件 |
+| server.crt      | SSL 证书      |
+| server.key      | SSL 私钥      |
+| panel_pwd.txt   | 面板密码        |
+| cert_domain.txt | 证书绑定域名      |
+
+迁移或备份时，仅需备份整个 `data` 目录。
+
+---
+
+# 🔄 更新项目
+
+拉取最新镜像：
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+或：
+
+```bash
+docker pull ghcr.io/6106757-lab/anytls-mihomo:latest
+docker restart anytls-mihomo-panel
+```
+
+---
+
+# ⚠️ 免责声明
+
+本项目仅用于学习、研究及合法的网络技术交流。
+
+请严格遵守所在地法律法规，不得将本项目用于任何违法违规用途。
+
+因使用本项目所产生的一切风险及后果，均由使用者自行承担，项目作者不承担任何责任。
